@@ -3,17 +3,22 @@ const ClothingItem = require("../models/clothingItem");
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl })
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
       res.send(item);
     })
     .catch((err) => {
-      res.status(500).send({ message: err.message });
+      if ((err.name = "ValidationError")) {
+        return res.status(400).send({ message: err.message });
+      }
+      return res.status(500).send({ message: err.message });
     });
 };
 
 const getItems = (req, res) => {
   ClothingItem.find({})
+    .populate("owner")
+    .populate("likes")
     .then((items) => res.status(200).send(items))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
