@@ -51,7 +51,7 @@ const updateItem = async (req, res) => {
       { $set: { imageUrl } },
       { new: true }
     );
-    res.status(200).send({ data: updatedItem });
+    return res.status(200).send({ data: updatedItem });
   } catch (err) {
     if (err.name === "CastError") {
       return res.status(400).send({ message: err.message });
@@ -75,7 +75,7 @@ const deleteItem = async (req, res) => {
     }
 
     const deletedItem = await ClothingItem.findByIdAndDelete(itemId);
-    res.status(200).send({ data: deletedItem });
+    return res.status(200).send({ data: deletedItem });
   } catch (err) {
     if (err.name === "CastError") {
       return res.status(400).send({ message: err.message });
