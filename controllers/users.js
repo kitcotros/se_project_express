@@ -94,7 +94,8 @@ const loginUser = (req, res) => {
 };
 
 const updateProfile = (req, res) => {
-  const filter = req.user;
+  const { _id } = req.user;
+  const filter = { _id };
   const { name, avatar } = req.body;
   const update = {};
   if (name !== undefined) update.name = name;

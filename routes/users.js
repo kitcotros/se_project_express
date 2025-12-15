@@ -11,6 +11,6 @@ const {
 router.post("/signin", loginUser);
 router.post("/signup", createUser);
 router.get("/users/me", auth, getCurrentUser);
-router.patch("/users/me", updateProfile);
+router.patch("/users/me", auth, updateProfile);
 
 module.exports = router;
