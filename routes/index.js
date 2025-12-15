@@ -4,7 +4,7 @@ const userRouter = require("./users");
 const itemRouter = require("./clothingitems");
 const likesRouter = require("./likes");
 
-router.use("/users", userRouter);
+router.use("/", userRouter);
 router.use("/items", itemRouter);
 router.use("/items", likesRouter);
 
