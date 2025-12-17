@@ -9,7 +9,7 @@ const {
 } = require("../controllers/clothingitems");
 
 router.post("/", auth, createItem);
-router.get("/", auth, getItems);
+router.get("/", getItems);
 router.put("/:itemId", auth, updateItem);
 router.delete("/:itemId", auth, deleteItem);
 

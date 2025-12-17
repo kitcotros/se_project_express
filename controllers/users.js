@@ -24,27 +24,21 @@ const createUser = (req, res) => {
     return res.status(400).send({ message: "All fields are required" });
   }
 
-  User.findOne({ email })
-    .then((existingUser) => {
-      if (existingUser) {
-        return res
-          .status(409)
-          .send({ message: "User with this email already exists" });
-      }
-      return bcrypt.hash(password, 10);
-    })
-    .then((hash) => {
-      if (typeof hash !== "string") return Promise.resolve();
-      return User.create({ name, avatar, email, password: hash });
-    })
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({ name, avatar, email, password: hash }))
     .then((user) => {
-      if (!user) return;
       const userResponse = user.toObject();
       userResponse.password = undefined;
       res.status(201).send({ user: userResponse });
     })
     .catch((err) => {
       console.error(err);
+      if (err.code === 11000) {
+        return res
+          .status(409)
+          .send({ message: "User with this email already exists" });
+      }
       if (err.name === "ValidationError") {
         return res.status(400).send({ message: err.message });
       }
