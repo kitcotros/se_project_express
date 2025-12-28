@@ -20,8 +20,8 @@ const getUsers = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
-  if (!name || !avatar || !email || !password) {
-    return res.status(400).send({ message: "All fields are required" });
+  if (!name || !email || !password) {
+    return res.status(400).send({ message: "Missing required fields" });
   }
 
   bcrypt
