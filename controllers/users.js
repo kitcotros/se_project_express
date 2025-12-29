@@ -27,16 +27,18 @@ const createUser = (req, res) => {
     return res.status(400).send({ message: "Missing required fields" });
   }
 
-  if (!avatar) {
-    const firstName = name.split(" ")[0];
-    avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      firstName
+  const firstInitial = name.trim()[0];
+  const avatarUrl =
+    avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      firstInitial
     )}&background=random&color=fff`;
-  }
 
   bcrypt
     .hash(password, 10)
-    .then((hash) => User.create({ name, avatar, email, password: hash }))
+    .then((hash) =>
+      User.create({ name, avatar: avatarUrl, email, password: hash })
+    )
     .then((user) => {
       const userResponse = user.toObject();
       userResponse.password = undefined;
@@ -90,8 +92,6 @@ const loginUser = (req, res) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      console.log(user);
-
       const { name, avatar } = user;
 
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
@@ -100,8 +100,8 @@ const loginUser = (req, res) => {
 
       res.send({
         user: {
-          name: name,
-          avatar: avatar,
+          name,
+          avatar,
         },
         token,
       });

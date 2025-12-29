@@ -57,4 +57,11 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(
     });
 };
 
+userSchema.set("toJSON", {
+  transform: (doc, ret) => {
+    ret._id = ret._id.toString();
+    return ret;
+  },
+});
+
 module.exports = mongoose.model("user", userSchema);
