@@ -18,10 +18,20 @@ const getUsers = (req, res) => {
 };
 
 const createUser = (req, res) => {
+  console.log("REQ BODY:", req.body);
+  console.log("EMAIL:", req.body.email, typeof req.body.email);
+
   const { name, avatar, email, password } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).send({ message: "Missing required fields" });
+  }
+
+  if (!avatar) {
+    const firstName = name.split(" ")[0];
+    avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      firstName
+    )}&background=random&color=fff`;
   }
 
   bcrypt
@@ -79,11 +89,23 @@ const loginUser = (req, res) => {
   }
 
   return User.findUserByCredentials(email, password)
-    .then((user) =>
+    .then((user) => {
+      console.log(user);
+
+      const { name, avatar } = user;
+
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
       res.send({
-        token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
-      })
-    )
+        user: {
+          name: name,
+          avatar: avatar,
+        },
+        token,
+      });
+    })
     .catch((err) => res.status(401).send({ message: err.message }));
 };
 
