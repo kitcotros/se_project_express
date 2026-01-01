@@ -2,18 +2,23 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const JWT_SECRET = require("../utils/config");
+const NotFoundError = require("../errors/not-found-err");
+const BadRequestError = require("../errors/bad-request-err");
+const ConflictError = require("../errors/conflict-err");
+const UnauthorizedError = require("../errors/unauthorized-err");
+const ForbiddenError = require("../errors/forbidden-err");
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        res.status(404).send({ message: err.message });
+        next(new NotFoundError("No users found"));
+      } else if (err.name === "CastError") {
+        next(new BadRequestError("The id string is in an invalid format"));
+      } else {
+        next(err);
       }
-      if (err.name === "CastError") {
-        return res.status(400).send({ message: err.message });
-      }
-      return res.status(500).send({ message: err.message });
     });
 };
 
@@ -24,7 +29,7 @@ const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).send({ message: "Missing required fields" });
+    next(new BadRequestError("Missing required fields"));
   }
 
   const firstInitial = name.trim()[0];
@@ -47,14 +52,12 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.code === 11000) {
-        return res
-          .status(409)
-          .send({ message: "User with this email already exists" });
+        next(new ConflictError("User with this email already exists"));
+      } else if (err.name === "ValidationError") {
+        next(new BadRequestError(err.message));
+      } else {
+        next(err);
       }
-      if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
-      }
-      return res.status(500).send({ message: err.message });
     });
   return null;
 };
@@ -74,12 +77,12 @@ const getCurrentUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: err.message });
+        next(new NotFoundError("User not found"));
+      } else if (err.name === "CastError") {
+        next(new BadRequestError("The id string is in an invalid format"));
+      } else {
+        next(err);
       }
-      if (err.name === "CastError") {
-        return res.status(400).send({ message: err.message });
-      }
-      return res.status(500).send({ message: err.message });
     });
 };
 
