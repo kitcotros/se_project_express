@@ -1,5 +1,11 @@
 const ClothingItem = require("../models/clothingItem");
 
+const NotFoundError = require("../errors/not-found-err");
+const BadRequestError = require("../errors/bad-request-err");
+const ConflictError = require("../errors/conflict-err");
+const UnauthorizedError = require("../errors/unauthorized-err");
+const ForbiddenError = require("../errors/forbidden-err");
+
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
@@ -9,9 +15,10 @@ const createItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
+        next(new BadRequestError({ message: err.message }));
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: err.message });
     });
 };
 
@@ -22,12 +29,12 @@ const getItems = (req, res) => {
     .then((items) => res.status(200).send(items))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: err.message });
+        next(new NotFoundError("No items found"));
+      } else if (err.name === "CastError") {
+        next(new BadRequestError({ message: err.message }));
+      } else {
+        next(err);
       }
-      if (err.name === "CastError") {
-        return res.status(400).send({ message: err.message });
-      }
-      return res.status(500).send({ message: err.message });
     });
 };
 
@@ -38,12 +45,10 @@ const updateItem = async (req, res) => {
 
     const item = await ClothingItem.findById(itemId);
     if (!item) {
-      return res.status(404).send({ message: "Item not found" });
+      next(new NotFoundError("Item not found"));
     }
     if (item.owner.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .send({ message: "You don't have permission to update this item" });
+      next(new ForbiddenError("You don't have permission to update this item"));
     }
 
     const updatedItem = await ClothingItem.findByIdAndUpdate(
@@ -54,9 +59,10 @@ const updateItem = async (req, res) => {
     return res.status(200).send({ data: updatedItem });
   } catch (err) {
     if (err.name === "CastError") {
-      return res.status(400).send({ message: err.message });
+      next(new BadRequestError({ message: err.message }));
+    } else {
+      next(err);
     }
-    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -66,21 +72,20 @@ const deleteItem = async (req, res) => {
 
     const item = await ClothingItem.findById(itemId);
     if (!item) {
-      return res.status(404).send({ message: "Item not found" });
+      next(new NotFoundError("Item not found"));
     }
     if (item.owner.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .send({ message: "You don't have permission to delete this item" });
+      next(new ForbiddenError("You don't have permission to delete this item"));
     }
 
     const deletedItem = await ClothingItem.findByIdAndDelete(itemId);
     return res.status(200).send({ data: deletedItem });
   } catch (err) {
     if (err.name === "CastError") {
-      return res.status(400).send({ message: err.message });
+      next(new BadRequestError({ message: err.message }));
+    } else {
+      next(err);
     }
-    return res.status(500).send({ message: err.message });
   }
 };
 

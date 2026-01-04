@@ -1,5 +1,11 @@
 const ClothingItem = require("../models/clothingItem");
 
+const NotFoundError = require("../errors/not-found-err");
+const BadRequestError = require("../errors/bad-request-err");
+const ConflictError = require("../errors/conflict-err");
+const UnauthorizedError = require("../errors/unauthorized-err");
+const ForbiddenError = require("../errors/forbidden-err");
+
 module.exports.likeItem = (req, res) =>
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
@@ -13,12 +19,12 @@ module.exports.likeItem = (req, res) =>
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: err.message });
+        next(new NotFoundError("No item found"));
+      } else if (err.name === "CastError") {
+        next(new BadRequestError({ message: err.message }));
+      } else {
+        next(err);
       }
-      if (err.name === "CastError") {
-        return res.status(400).send({ message: err.message });
-      }
-      return res.status(500).send({ message: err.message });
     });
 
 module.exports.dislikeItem = (req, res) =>
@@ -34,10 +40,10 @@ module.exports.dislikeItem = (req, res) =>
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: err.message });
+        next(new NotFoundError("No item found"));
+      } else if (err.name === "CastError") {
+        next(new BadRequestError({ message: err.message }));
+      } else {
+        next(err);
       }
-      if (err.name === "CastError") {
-        return res.status(400).send({ message: err.message });
-      }
-      return res.status(500).send({ message: err.message });
     });

@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const JWT_SECRET = require("../utils/config");
+
 const NotFoundError = require("../errors/not-found-err");
 const BadRequestError = require("../errors/bad-request-err");
 const ConflictError = require("../errors/conflict-err");
@@ -54,7 +55,7 @@ const createUser = (req, res) => {
       if (err.code === 11000) {
         next(new ConflictError("User with this email already exists"));
       } else if (err.name === "ValidationError") {
-        next(new BadRequestError(err.message));
+        next(new BadRequestError({ message: err.message }));
       } else {
         next(err);
       }
@@ -69,8 +70,7 @@ const getCurrentUser = (req, res) => {
     .orFail()
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: "User not found" });
-        return;
+        next(new NotFoundError("No user found"));
       }
       res.status(200).send(user);
     })
@@ -90,7 +90,7 @@ const loginUser = (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).send({ message: "Email and password are required" });
+    next(new BadRequestError("Email and password are required"));
   }
 
   return User.findUserByCredentials(email, password)
@@ -109,7 +109,7 @@ const loginUser = (req, res) => {
         token,
       });
     })
-    .catch((err) => res.status(401).send({ message: err.message }));
+    .catch((err) => next(new UnauthorizedError({ message: err.message })));
 };
 
 const updateProfile = (req, res) => {
@@ -123,19 +123,20 @@ const updateProfile = (req, res) => {
   User.findOneAndUpdate(filter, update, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "User not found" });
+        next(new NotFoundError("No user found"));
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: err.message });
+        next(new NotFoundError("No user found"));
       }
       if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
+        next(new BadRequestError({ message: err.message }));
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: err.message });
     });
 };
 
