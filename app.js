@@ -1,14 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
 const User = require("./models/user");
 const errorHandler = require("./middlewares/error-handler");
 
 const app = express();
 const { PORT = 3001 } = process.env;
-
-const { errors } = require("celebrate");
 
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 
