@@ -4,7 +4,7 @@ The back-end project is focused on creating a server for the WTWR application. I
 
 ## Links
 
-Check out my [Project Pitch Video](https://drive.google.com/file/d/16vy6MA1j_BeIC-S01bu0bqhu6HSR40sr/view?usp=sharing), where I describe my project and some challenges I faced while building it.
+[Project Pitch Video](https://drive.google.com/file/d/1TvdsfRyAGqad-3u7WEfnm1eXFbYDMdVt/view?usp=sharing)
 
 [Frontend Repo](https://github.com/kitcotros/se_project_react)
 
