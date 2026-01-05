@@ -11,7 +11,7 @@ module.exports.likeItem = (req, res, next) =>
   )
     .orFail()
     .then((item) => {
-      res.send({ data: item });
+      res.send(item);
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
@@ -31,7 +31,7 @@ module.exports.dislikeItem = (req, res, next) =>
   )
     .orFail()
     .then((item) => {
-      res.send({ data: item });
+      res.send(item);
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
