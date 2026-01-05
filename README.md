@@ -8,4 +8,8 @@ The back-end project is focused on creating a server for the WTWR application. I
 
 [Frontend Repo](https://github.com/kitcotros/se_project_react)
 
-[Deployed Site](https://www.kitroswtwr.soon.it/)
+## Domain
+
+https://kitroswtwr.soon.it
+https://www.kitroswtwr.soon.it/
+https://api.kitroswtwr.soon.it/ <-- Backend
