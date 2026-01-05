@@ -50,7 +50,10 @@ const validateCardBody = celebrate({
       "string.max": 'The maximum length of the "name" field is 30',
       "string.empty": 'The "name" field must be filled in',
     }),
-
+    weather: Joi.string().required().valid("hot", "warm", "cold").messages({
+      "any.only": 'The "weather" field must be one of: hot, warm, cold',
+      "string.empty": 'The "weather" field must be filled in',
+    }),
     imageUrl: Joi.string().required().custom(validateURL).messages({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'the "imageUrl" field must be a valid url',
@@ -60,7 +63,7 @@ const validateCardBody = celebrate({
 
 const validateId = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().hex().length(24),
+    itemId: Joi.string().required().hex().length(24),
   }),
 });
 
